@@ -4,4 +4,9 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
+bpaf = { version = "0.9.15", features = [
+  "docgen",
+  "autocomplete",
+  "bright-color",
+] }
 vel = { version = "0.0.1", path = "../vel" }

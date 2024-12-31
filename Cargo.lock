@@ -3,6 +3,37 @@
 version = 3
 
 [[package]]
+name = "bpaf"
+version = "0.9.15"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "50fd5174866dc2fa2ddc96e8fb800852d37f064f32a45c7b7c2f8fa2c64c77fa"
+dependencies = [
+ "owo-colors",
+ "supports-color",
+]
+
+[[package]]
+name = "is_ci"
+version = "1.2.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "7655c9839580ee829dfacba1d1278c2b7883e50a277ff7541299489d6bdfdc45"
+
+[[package]]
+name = "owo-colors"
+version = "4.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "fb37767f6569cd834a413442455e0f066d0d522de8630436e2a1761d9726ba56"
+
+[[package]]
+name = "supports-color"
+version = "3.0.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "8775305acf21c96926c900ad056abeef436701108518cf890020387236ac5a77"
+dependencies = [
+ "is_ci",
+]
+
+[[package]]
 name = "vel"
 version = "0.0.1"
 
@@ -10,5 +41,6 @@ version = "0.0.1"
 name = "velox"
 version = "0.1.0"
 dependencies = [
+ "bpaf",
  "vel",
 ]

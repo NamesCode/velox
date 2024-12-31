@@ -14,4 +14,4 @@ Velox was designed with the Unix Philosophy in mind along with the idea that all
 ## The name 
 
 The name is the latin word for [quick](https://en.wiktionary.org/wiki/velox)!
-It's also a nod towards S*vel*te.
+It's also a nod towards S**vel**te.
