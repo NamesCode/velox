@@ -2,6 +2,9 @@
 
 A minimal SSG CLI tool inspired by Svelte.
 
+> [!WARNING]
+> THIS IN ALPHA, DO NOT USE. NOTHING IS STABLE.
+
 ## Installation
 
 A simple `cargo install` should suffice!
