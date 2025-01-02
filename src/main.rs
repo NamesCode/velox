@@ -1,10 +1,11 @@
 use std::{
-    collections::HashMap,
+    collections::{HashMap, VecDeque},
     env,
     error::Error,
     fs::{self, read_dir},
     io,
-    path::PathBuf,
+    mem::discriminant,
+    path::{Components, PathBuf},
 };
 
 use bpaf::{construct, long, positional, OptionParser, Parser};
@@ -12,21 +13,20 @@ use vel::VelInstance;
 
 #[derive(Debug)]
 struct Options {
-    component_dirs: Option<Vec<PathBuf>>,
+    components: Vec<PathBuf>,
     file: PathBuf,
 }
 
 fn get_cli_options() -> OptionParser<Options> {
-    let component_dirs = long("components")
+    let components = long("components")
         .short('c')
         .argument("COMPONENTS")
         .help("Path to a component or directory of components.")
-        .many()
-        .optional();
+        .many();
     let file = positional("FILE");
 
     construct!(Options {
-        component_dirs,
+        components,
         file
     })
     .to_options()
@@ -41,19 +41,26 @@ fn get_cli_options() -> OptionParser<Options> {
     .version(env!("CARGO_PKG_VERSION"))
 }
 
-fn collect_files_recursively(dir: &PathBuf) -> Result<Vec<PathBuf>, io::Error> {
-    let mut files = Vec::new();
-    if dir.is_dir() {
-        for entry in read_dir(dir)? {
-            let path = entry?.path();
-            if path.is_dir() {
-                files.extend(collect_files_recursively(&path)?);
-            } else {
-                files.push(path);
+fn collect_components_recursively(mut dirs: VecDeque<PathBuf>) -> Vec<(String, String)> {
+    let mut components = Vec::new();
+
+    while let Some(dir) = dirs.pop_front() {
+        if let Ok(entries) = dir.read_dir() {
+            for entry in entries.flatten() {
+                let path = entry.path();
+                if path.is_dir() {
+                    dirs.push_back(path);
+                } else if let (Some(file_name), Ok(file_contents)) = (
+                    path.file_stem().and_then(|s| s.to_str().map(String::from)),
+                    fs::read_to_string(&path),
+                ) {
+                    components.push((file_name, file_contents));
+                }
             }
         }
     }
-    Ok(files)
+
+    components
 }
 
 fn main() -> Result<(), Box<dyn Error>> {
@@ -70,17 +77,16 @@ fn main() -> Result<(), Box<dyn Error>> {
 
     let mut components = HashMap::from([(file_name.clone(), file_contents)]);
 
-    if let Some(dirs) = passed_options.component_dirs {
-        for dir in dirs {
-            if dir.is_dir() {
-                for file_path in collect_files_recursively(&dir)? {
-                    let file_name = file_path.file_stem().unwrap().to_str().unwrap().to_string();
-                    let file_contents = fs::read_to_string(&file_path).unwrap();
-                    components.insert(file_name, file_contents);
-                }
-            }
-        }
-    }
+    components.extend(
+        collect_components_recursively(
+            passed_options
+                .components
+                .into_iter()
+                .filter_map(|path| path.canonicalize().ok())
+                .collect(),
+        )
+        .into_iter(),
+    );
 
     let inputs = HashMap::from_iter(env::vars());
 
