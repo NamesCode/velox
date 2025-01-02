@@ -2,10 +2,8 @@ use std::{
     collections::{HashMap, VecDeque},
     env,
     error::Error,
-    fs::{self, read_dir},
-    io,
-    mem::discriminant,
-    path::{Components, PathBuf},
+    fs::{self},
+    path::PathBuf,
 };
 
 use bpaf::{construct, long, positional, OptionParser, Parser};
